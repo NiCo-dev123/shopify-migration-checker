@@ -72,3 +72,11 @@ Report written to /home/nicolas/Heatzy/Dev/migration-checker/reports/verified-ur
 1. Why did some fetch fail ?
 2. I don't see any status error, also no status error in the csv
 3. The log shows the error after the --- separator, not really good
+
+your answers here :
+
+1. fetch failed means Node received no HTTP response—likely a transient socket, TLS, or connection issue. Since other URLs on the same domain succeeded, it probably isn’t an invalid URL. The exact cause is hidden in error.cause, which we currently don’t record.
+
+2. There is no status code because the server never returned a response. Leaving status_code blank is accurate, but the report should add an error column and probably a request-error flag.
+
+3. Agreed. The error is logged separately after printResult(), which already prints ----. It should be included in the entry before the separator.

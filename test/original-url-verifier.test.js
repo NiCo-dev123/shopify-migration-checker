@@ -66,6 +66,57 @@ test("releases the original URL response body", async () => {
   assert.equal(response.bodyUsed, true);
 });
 
+test("retries fetch failures up to three total attempts", async () => {
+  let attempts = 0;
+
+  const result = await verifyOriginalUrl("old.example", "/original", async () => {
+    attempts += 1;
+
+    if (attempts < 3) {
+      throw new TypeError("fetch failed");
+    }
+
+    return new Response(null, { status: 200 });
+  });
+
+  assert.equal(attempts, 3);
+  assert.equal(result.isVerified, true);
+  assert.equal(result.statusCode, 200);
+});
+
+test("reports timeout after all fetch attempts fail", async () => {
+  let attempts = 0;
+  const fetchError = new TypeError("fetch failed", {
+    cause: Object.assign(new Error("socket closed"), { code: "UND_ERR_SOCKET" }),
+  });
+
+  const result = await verifyOriginalUrl("old.example", "/original", async () => {
+    attempts += 1;
+    throw fetchError;
+  });
+
+  assert.equal(attempts, 3);
+  assert.equal(result.isVerified, false);
+  assert.equal(result.statusCode, "timeout");
+  assert.equal(
+    result.errorMessage,
+    "fetch failed (UND_ERR_SOCKET: socket closed)",
+  );
+});
+
+test("does not retry HTTP error responses", async () => {
+  let attempts = 0;
+
+  const result = await verifyOriginalUrl("old.example", "/missing", async () => {
+    attempts += 1;
+    return new Response(null, { status: 404 });
+  });
+
+  assert.equal(attempts, 1);
+  assert.equal(result.isVerified, false);
+  assert.equal(result.statusCode, 404);
+});
+
 test("writes a timestamped original URL report", async (context) => {
   const date = new Date(2026, 5, 22, 18, 5);
   const reportPath = await writeOriginalUrlReport(

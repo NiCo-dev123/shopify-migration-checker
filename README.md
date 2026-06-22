@@ -107,6 +107,10 @@ failures are invalid. It writes a timestamped report to
 `reports/verified-urls-yymmdd-hhmm.csv` with the domain, path, verification
 result, HTTP status code, and warning flags.
 
+Network-level fetch failures are attempted up to three times. HTTP error
+responses are not retried. If all attempts fail, `status_code` is `timeout` and
+the underlying error is printed with the entry before its `----` separator.
+
 Before making requests, the command checks `old_url` and `new_url` for exact
 duplicate values. Every affected row receives the `double-entry` flag and a
 flag is printed with that entry's terminal output. Empty cells are ignored;

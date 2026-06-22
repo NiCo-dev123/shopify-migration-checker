@@ -54,9 +54,22 @@ export async function verifyOriginalUrl(
   oldDomain,
   path,
   fetchImplementation = fetch,
+  retries = 3,
 ) {
   const requestUrl = buildUrl(oldDomain, path);
-  const response = await fetchImplementation(requestUrl, { redirect: "manual" });
+  let response;
+
+  try {
+    response = await fetchWithRetries(
+      requestUrl,
+      { redirect: "manual" },
+      fetchImplementation,
+      retries,
+    );
+  } catch (error) {
+    return createFailedResult(oldDomain, path, "", error);
+  }
+
   const statusCode = response.status;
   await response.body?.cancel();
 
@@ -68,22 +81,49 @@ export async function verifyOriginalUrl(
   };
 }
 
-function createFailedResult(oldDomain, path, flag) {
+async function fetchWithRetries(url, options, fetchImplementation, retries) {
+  const attempts = Math.max(1, Math.floor(retries));
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fetchImplementation(url, options);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+function formatFetchError(error) {
+  const causeDetails = [error.cause?.code, error.cause?.message]
+    .filter(Boolean)
+    .join(": ");
+
+  return causeDetails ? `${error.message} (${causeDetails})` : error.message;
+}
+
+function createFailedResult(oldDomain, path, flag, error) {
   return {
     domainName: buildUrl(oldDomain).host,
     path,
     isVerified: false,
-    statusCode: "",
+    statusCode: "timeout",
     flag,
+    errorMessage: formatFetchError(error),
   };
 }
 
 function printResult(result) {
   console.log(`${result.domainName}${result.path}`);
   console.log("Verified:", result.isVerified);
-  console.log("Status:", result.statusCode || "Request failed");
+  console.log("Status:", result.statusCode);
   if (result.flag) {
     console.log("Flag:", result.flag);
+  }
+  if (result.errorMessage) {
+    console.log("Error:", result.errorMessage);
   }
   console.log("----");
 }
@@ -118,10 +158,10 @@ export async function runOriginalUrlVerification() {
         migration.old_domain,
         redirect.old_url,
         flag,
+        error,
       );
       results.push(result);
       printResult(result);
-      console.error(`Error: ${redirect.old_url}`, error.message);
     }
   }
 
