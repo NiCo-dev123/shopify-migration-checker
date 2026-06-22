@@ -1,0 +1,13 @@
+{
+  "name": "migration-checker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "check": "node --check index.js && node --check src/csv.js && node --check src/redirect-checker.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
