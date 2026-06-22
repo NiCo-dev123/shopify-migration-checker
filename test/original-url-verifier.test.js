@@ -36,6 +36,14 @@ test("does not follow redirects while verifying an original URL", async () => {
   assert.equal(redirectMode, "manual");
 });
 
+test("releases the original URL response body", async () => {
+  const response = new Response("page content", { status: 200 });
+
+  await verifyOriginalUrl("old.example", "/original", async () => response);
+
+  assert.equal(response.bodyUsed, true);
+});
+
 test("writes a timestamped original URL report", async (context) => {
   const date = new Date(2026, 5, 22, 18, 5);
   const reportPath = await writeOriginalUrlReport(

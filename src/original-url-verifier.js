@@ -15,12 +15,14 @@ export async function verifyOriginalUrl(
 ) {
   const requestUrl = buildUrl(oldDomain, path);
   const response = await fetchImplementation(requestUrl, { redirect: "manual" });
+  const statusCode = response.status;
+  await response.body?.cancel();
 
   return {
     domainName: requestUrl.host,
     path,
-    isVerified: response.status >= 200 && response.status < 300,
-    statusCode: response.status,
+    isVerified: statusCode >= 200 && statusCode < 300,
+    statusCode,
   };
 }
 

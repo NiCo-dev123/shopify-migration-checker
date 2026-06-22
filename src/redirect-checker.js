@@ -36,6 +36,7 @@ export async function checkRedirect(
     response.headers.get("location"),
     expectedUrl,
   );
+  await response.body?.cancel();
 
   return {
     oldUrl: requestUrl.href,

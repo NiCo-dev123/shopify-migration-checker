@@ -50,6 +50,21 @@ test("only a 301 response sets hasRedirect to true", async () => {
   assert.equal(result.statusCode, 302);
 });
 
+test("releases the redirect response body", async () => {
+  const response = new Response("redirecting", {
+    status: 301,
+    headers: { location: "/new" },
+  });
+
+  await checkRedirect(
+    "new.example",
+    { old_url: "/old", new_url: "/new" },
+    async () => response,
+  );
+
+  assert.equal(response.bodyUsed, true);
+});
+
 test("writes a timestamped redirect report", async (context) => {
   const date = new Date(2026, 5, 22, 14, 7);
   const reportPath = await writeRedirectReport(
