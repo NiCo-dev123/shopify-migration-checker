@@ -16,7 +16,6 @@ function response(status, location) {
 
 test("matches a relative 301 redirect against the destination domain", async () => {
   const result = await checkRedirect(
-    "old.example",
     "new.example",
     { old_url: "/old", new_url: "/new?source=test" },
     async () => response(301, "/new?source=test"),
@@ -25,12 +24,12 @@ test("matches a relative 301 redirect against the destination domain", async () 
   assert.equal(result.hasRedirect, true);
   assert.equal(result.isMatch, true);
   assert.equal(result.statusCode, 301);
+  assert.equal(result.oldUrl, "https://new.example/old");
   assert.equal(result.actualUrl, "https://new.example/new?source=test");
 });
 
 test("rejects a redirect to the wrong absolute domain", async () => {
   const result = await checkRedirect(
-    "old.example",
     "new.example",
     { old_url: "/old", new_url: "/new" },
     async () => response(301, "https://wrong.example/new"),
@@ -42,7 +41,6 @@ test("rejects a redirect to the wrong absolute domain", async () => {
 
 test("only a 301 response sets hasRedirect to true", async () => {
   const result = await checkRedirect(
-    "old.example",
     "new.example",
     { old_url: "/old", new_url: "/new" },
     async () => response(302, "/new"),

@@ -29,12 +29,11 @@ function urlsMatch(actualUrl, expectedUrl) {
 }
 
 export async function checkRedirect(
-  oldDomain,
   newDomain,
   redirect,
   fetchImplementation = fetch,
 ) {
-  const requestUrl = toUrl(oldDomain, redirect.old_url);
+  const requestUrl = toUrl(newDomain, redirect.old_url);
   const expectedUrl = toUrl(newDomain, redirect.new_url);
   const response = await fetchImplementation(requestUrl, { redirect: "manual" });
   const actualUrl = resolveRedirectTarget(
@@ -61,9 +60,9 @@ function printResult(result) {
   console.log("----");
 }
 
-function createFailedResult(oldDomain, newDomain, redirect) {
+function createFailedResult(newDomain, redirect) {
   return {
-    oldUrl: toUrl(oldDomain, redirect.old_url).href,
+    oldUrl: toUrl(newDomain, redirect.old_url).href,
     newUrl: toUrl(newDomain, redirect.new_url).href,
     actualUrl: "",
     isMatch: false,
@@ -79,10 +78,8 @@ export async function runRedirectChecks() {
   ]);
   const migration = domains[0];
 
-  if (!migration?.old_domain || !migration.new_domain) {
-    throw new Error(
-      "inputs/urls.csv must contain old_domain and new_domain values",
-    );
+  if (!migration?.new_domain) {
+    throw new Error("inputs/urls.csv must contain a new_domain value");
   }
 
   const results = [];
@@ -90,7 +87,6 @@ export async function runRedirectChecks() {
   for (const redirect of redirects) {
     try {
       const result = await checkRedirect(
-        migration.old_domain,
         migration.new_domain,
         redirect,
       );
@@ -98,11 +94,7 @@ export async function runRedirectChecks() {
       printResult(result);
     } catch (error) {
       results.push(
-        createFailedResult(
-          migration.old_domain,
-          migration.new_domain,
-          redirect,
-        ),
+        createFailedResult(migration.new_domain, redirect),
       );
       console.error(`Error: ${redirect.old_url}`, error.message);
     }

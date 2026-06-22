@@ -4,7 +4,8 @@
 
 A lightweight Node.js utility to validate HTTP redirects during a website migration (e.g. Squarespace → Shopify).
 
-The script reads a CSV file containing old and new URL paths, then automatically checks that:
+The script reads CSV files containing migration domains and old/new URL paths.
+It requests each old path on the Shopify `new_domain`, then checks that:
 
 - The old URL returns an HTTP **301** redirect.
 - The `Location` header matches the expected destination.
@@ -44,6 +45,9 @@ Edit `inputs/urls.csv` and set the source and destination domains:
 old_domain,new_domain
 heatzy.com,heatzyfr.myshopify.com
 ```
+
+Redirect checks use `new_domain` for both the requested old path and expected
+new path. `old_domain` is reserved for checking the original website's URLs.
 
 ## Installation
 
