@@ -62,6 +62,13 @@ node --version
 
 ## Usage
 
+Available verification commands:
+
+```bash
+npm run verify:redirect # Check redirects on new_domain
+npm run verify:original # Check original paths on old_domain
+```
+
 ### Check Shopify redirects
 
 Run the redirect checker:
