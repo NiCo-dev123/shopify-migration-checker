@@ -1,23 +1,19 @@
 import { fileURLToPath } from "node:url";
 import { readCsv } from "./csv.js";
 import { writeRedirectReport } from "./redirect-report.js";
+import { buildUrl } from "./url.js";
 
 const redirectsFile = fileURLToPath(
   new URL("../inputs/redirects.csv", import.meta.url),
 );
 const domainsFile = fileURLToPath(new URL("../inputs/urls.csv", import.meta.url));
 
-function toUrl(domain, path = "") {
-  const baseUrl = /^https?:\/\//u.test(domain) ? domain : `https://${domain}`;
-  return new URL(path, `${baseUrl.replace(/\/$/u, "")}/`);
-}
-
 function resolveRedirectTarget(location, expectedUrl) {
   if (!location) {
     return null;
   }
 
-  return toUrl(expectedUrl.origin, location);
+  return buildUrl(expectedUrl.origin, location);
 }
 
 function urlsMatch(actualUrl, expectedUrl) {
@@ -33,8 +29,8 @@ export async function checkRedirect(
   redirect,
   fetchImplementation = fetch,
 ) {
-  const requestUrl = toUrl(newDomain, redirect.old_url);
-  const expectedUrl = toUrl(newDomain, redirect.new_url);
+  const requestUrl = buildUrl(newDomain, redirect.old_url);
+  const expectedUrl = buildUrl(newDomain, redirect.new_url);
   const response = await fetchImplementation(requestUrl, { redirect: "manual" });
   const actualUrl = resolveRedirectTarget(
     response.headers.get("location"),
@@ -62,8 +58,8 @@ function printResult(result) {
 
 function createFailedResult(newDomain, redirect) {
   return {
-    oldUrl: toUrl(newDomain, redirect.old_url).href,
-    newUrl: toUrl(newDomain, redirect.new_url).href,
+    oldUrl: buildUrl(newDomain, redirect.old_url).href,
+    newUrl: buildUrl(newDomain, redirect.new_url).href,
     actualUrl: "",
     isMatch: false,
     hasRedirect: false,

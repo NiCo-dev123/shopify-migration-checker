@@ -19,6 +19,8 @@ This tool is especially useful for SEO migrations where preserving existing URLs
 - Verify HTTP status codes
 - Validate the `Location` header
 - Detect missing or incorrect redirects
+- Verify that original-site URLs return successful responses
+- Export timestamped CSV reports
 - Simple and easy to extend
 
 ## Configure inputs
@@ -60,10 +62,12 @@ node --version
 
 ## Usage
 
-Run the script:
+### Check Shopify redirects
+
+Run the redirect checker:
 
 ```bash
-npm start
+npm run verify:redirect
 ```
 
 Each run writes a timestamped report to
@@ -81,6 +85,20 @@ Status: 301
 Match: true
 ----
 ```
+
+### Verify original URLs
+
+Check that each `old_url` from `inputs/redirects.csv` returns a `2xx` response
+on `old_domain`:
+
+```bash
+npm run verify:original
+```
+
+This command does not follow redirects: `3xx`, `4xx`, `5xx`, and request
+failures are invalid. It writes a timestamped report to
+`reports/verified-urls-yymmdd-hhmm.csv` with the domain, path, verification
+result, and HTTP status code.
 
 ## Typical Workflow
 

@@ -3,9 +3,9 @@ import { readFile, rm } from "node:fs/promises";
 import test from "node:test";
 import { checkRedirect } from "../src/redirect-checker.js";
 import {
-  formatReportTimestamp,
   writeRedirectReport,
 } from "../src/redirect-report.js";
+import { formatReportTimestamp } from "../src/report.js";
 
 function response(status, location) {
   return new Response(null, {
