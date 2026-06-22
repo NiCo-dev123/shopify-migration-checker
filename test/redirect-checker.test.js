@@ -65,6 +65,25 @@ test("releases the redirect response body", async () => {
   assert.equal(response.bodyUsed, true);
 });
 
+test("sends an authenticated storefront cookie with redirect checks", async () => {
+  let requestOptions;
+
+  await checkRedirect(
+    "new.example",
+    { old_url: "/old", new_url: "/new" },
+    async (_url, options) => {
+      requestOptions = options;
+      return response(301, "/new");
+    },
+    "storefront_digest=authenticated",
+  );
+
+  assert.equal(
+    requestOptions.headers.cookie,
+    "storefront_digest=authenticated",
+  );
+});
+
 test("writes a timestamped redirect report", async (context) => {
   const date = new Date(2026, 5, 22, 14, 7);
   const reportPath = await writeRedirectReport(

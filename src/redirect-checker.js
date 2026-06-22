@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { readCsv } from "./csv.js";
 import { writeRedirectReport } from "./redirect-report.js";
+import { authenticateShopifyStorefront } from "./shopify-storefront-auth.js";
 import { buildUrl } from "./url.js";
 
 const redirectsFile = fileURLToPath(
@@ -28,10 +29,17 @@ export async function checkRedirect(
   newDomain,
   redirect,
   fetchImplementation = fetch,
+  cookie = "",
 ) {
   const requestUrl = buildUrl(newDomain, redirect.old_url);
   const expectedUrl = buildUrl(newDomain, redirect.new_url);
-  const response = await fetchImplementation(requestUrl, { redirect: "manual" });
+  const requestOptions = { redirect: "manual" };
+
+  if (cookie) {
+    requestOptions.headers = { cookie };
+  }
+
+  const response = await fetchImplementation(requestUrl, requestOptions);
   const actualUrl = resolveRedirectTarget(
     response.headers.get("location"),
     expectedUrl,
@@ -79,6 +87,15 @@ export async function runRedirectChecks() {
     throw new Error("inputs/urls.csv must contain a new_domain value");
   }
 
+  const storefrontPassword =
+    process.env.SHOPIFY_STOREFRONT_PASSWORD?.trim() ||
+    migration.storefront_password?.trim();
+  const storefrontCookie = storefrontPassword
+    ? await authenticateShopifyStorefront(
+        migration.new_domain,
+        storefrontPassword,
+      )
+    : "";
   const results = [];
 
   for (const redirect of redirects) {
@@ -86,6 +103,8 @@ export async function runRedirectChecks() {
       const result = await checkRedirect(
         migration.new_domain,
         redirect,
+        fetch,
+        storefrontCookie,
       );
       results.push(result);
       printResult(result);

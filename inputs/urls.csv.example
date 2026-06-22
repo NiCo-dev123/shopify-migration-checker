@@ -1,2 +1,2 @@
-old_domain,new_domain
-example.com,example.myshopify.com
+old_domain,new_domain,storefront_password
+example.com,example.myshopify.com,

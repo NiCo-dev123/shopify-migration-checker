@@ -44,12 +44,23 @@ old_url,new_url
 Edit `inputs/urls.csv` and set the source and destination domains:
 
 ```csv
-old_domain,new_domain
-heatzy.com,heatzyfr.myshopify.com
+old_domain,new_domain,storefront_password
+heatzy.com,heatzyfr.myshopify.com,
 ```
 
 Redirect checks use `new_domain` for both the requested old path and expected
 new path. `old_domain` is reserved for checking the original website's URLs.
+
+For a password-protected Shopify storefront, set `storefront_password` in the
+ignored local `inputs/urls.csv` file. Alternatively, leave the field empty and
+provide the password only for the command:
+
+```bash
+SHOPIFY_STOREFRONT_PASSWORD='your-password' npm run verify:redirect
+```
+
+The password is exchanged for Shopify session cookies and is never printed or
+written to a report. Never add a real password to `inputs/urls.csv.example`.
 
 ## Installation
 
