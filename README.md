@@ -13,6 +13,25 @@ It requests each old path on the Shopify `new_domain`, then checks that:
 
 This tool is especially useful for SEO migrations where preserving existing URLs is critical.
 
+## Current branch: `dev-password`
+
+This experimental branch adds support for checking a Shopify storefront while
+its password page is enabled. It exists separately from `master` so the stable
+redirect checker remains untouched until the authentication flow is approved.
+
+Before checking redirects, `verify:redirect` loads Shopify's `/password` page,
+submits the configured storefront password with its authenticity token, saves
+the returned session cookies, and includes those cookies in every redirect
+request. `verify:original` is unchanged and does not use Shopify authentication.
+
+Successful authentication only bypasses the password page; it does not create
+or activate Shopify redirects. A `404` without a `/password` redirect means the
+storefront was unlocked successfully but Shopify has no active redirect for
+that path.
+
+Keep the password only in the ignored `inputs/urls.csv` file or the
+`SHOPIFY_STOREFRONT_PASSWORD` environment variable. Never commit it.
+
 ## Features
 
 - Read redirects from a CSV file
