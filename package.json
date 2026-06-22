@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "check": "node --check index.js && node --check src/csv.js && node --check src/redirect-checker.js"
+    "check": "node --check index.js && node --check src/csv.js && node --check src/redirect-checker.js && node --check src/redirect-report.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=18"

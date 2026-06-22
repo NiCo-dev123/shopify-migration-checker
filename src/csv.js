@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 
 function parseLine(line) {
   const values = [];
@@ -42,4 +43,26 @@ export async function readCsv(filePath) {
       headers.map((header, index) => [header, values[index] ?? ""]),
     );
   });
+}
+
+function escapeValue(value) {
+  const stringValue = String(value ?? "");
+
+  if (!/[",\r\n]/u.test(stringValue)) {
+    return stringValue;
+  }
+
+  return `"${stringValue.replaceAll('"', '""')}"`;
+}
+
+export async function writeCsv(filePath, rows, columns) {
+  const lines = [
+    columns.map(({ header }) => escapeValue(header)).join(","),
+    ...rows.map((row) =>
+      columns.map(({ key }) => escapeValue(row[key])).join(","),
+    ),
+  ];
+
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${lines.join("\n")}\n`, "utf8");
 }

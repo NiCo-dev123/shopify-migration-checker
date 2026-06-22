@@ -62,17 +62,19 @@ Run the script:
 npm start
 ```
 
+Each run writes a timestamped report to
+`reports/verified-redirects-yymmdd-hhmm.csv`. The report includes the requested
+URL, expected and actual destinations, match result, redirect result, and HTTP
+status code.
+
 Example output:
 
 ```text
 /pilote
+Expected: https://heatzyfr.myshopify.com/products/pilote
+Actual: https://heatzyfr.myshopify.com/products/pilote
 Status: 301
-Location: /products/pilote
-----
-
-/faq
-Status: 301
-Location: /pages/faq
+Match: true
 ----
 ```
 
