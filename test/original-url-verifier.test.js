@@ -2,7 +2,29 @@ import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
 import test from "node:test";
 import { writeOriginalUrlReport } from "../src/original-url-report.js";
-import { verifyOriginalUrl } from "../src/original-url-verifier.js";
+import {
+  detectDuplicateEntries,
+  verifyOriginalUrl,
+} from "../src/original-url-verifier.js";
+
+test("flags every row affected by duplicate old or new URLs", () => {
+  const { entries, duplicates } = detectDuplicateEntries([
+    { old_url: "/same", new_url: "/destination" },
+    { old_url: " /same ", new_url: "/other" },
+    { old_url: "/unique", new_url: "/destination" },
+    { old_url: "/same/", new_url: "" },
+    { old_url: "/SAME", new_url: "" },
+  ]);
+
+  assert.deepEqual(
+    entries.map(({ flags }) => flags),
+    [["double-entry"], ["double-entry"], ["double-entry"], [], []],
+  );
+  assert.deepEqual(duplicates, [
+    { column: "old_url", value: "/same", count: 2 },
+    { column: "new_url", value: "/destination", count: 2 },
+  ]);
+});
 
 test("marks only 2xx original URL responses as verified", async () => {
   for (const [status, expected] of [
@@ -53,6 +75,7 @@ test("writes a timestamped original URL report", async (context) => {
         path: "/original",
         isVerified: true,
         statusCode: 200,
+        flag: "double-entry",
       },
     ],
     date,
@@ -62,6 +85,7 @@ test("writes a timestamped original URL report", async (context) => {
   assert.match(reportPath, /verified-urls-260622-1805\.csv$/u);
   assert.equal(
     await readFile(reportPath, "utf8"),
-    "domain_name,path,is_verified,status_code\nold.example,/original,true,200\n",
+    "domain_name,path,is_verified,status_code,flag\n" +
+      "old.example,/original,true,200,double-entry\n",
   );
 });

@@ -105,7 +105,13 @@ npm run verify:original
 This command does not follow redirects: `3xx`, `4xx`, `5xx`, and request
 failures are invalid. It writes a timestamped report to
 `reports/verified-urls-yymmdd-hhmm.csv` with the domain, path, verification
-result, and HTTP status code.
+result, HTTP status code, and warning flags.
+
+Before making requests, the command checks `old_url` and `new_url` for exact
+duplicate values. Every affected row receives the `double-entry` flag and a
+flag is printed with that entry's terminal output. Empty cells are ignored;
+surrounding whitespace is trimmed, while case, trailing slashes, queries, and
+fragments remain meaningful.
 
 ## Typical Workflow
 

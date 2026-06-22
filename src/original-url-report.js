@@ -6,6 +6,7 @@ const reportColumns = [
   { key: "path", header: "path" },
   { key: "isVerified", header: "is_verified" },
   { key: "statusCode", header: "status_code" },
+  { key: "flag", header: "flag" },
 ];
 
 export async function writeOriginalUrlReport(results, date = new Date()) {
