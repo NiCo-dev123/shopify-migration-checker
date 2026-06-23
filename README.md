@@ -99,6 +99,17 @@ npm run verify:redirect # Check redirects on new_domain
 npm run verify:original # Check original paths on old_domain
 ```
 
+## Tools
+
+Extra one-off helpers live in `tools/`.
+
+```bash
+node tools/extract-urls.js imports-dirty/sitemap.xml
+```
+
+This extracts `<loc>` URLs from a sitemap into `reports/extract-sitemap.csv`
+with one `old_url` column.
+
 ### Check Shopify redirects
 
 Run the redirect checker:
