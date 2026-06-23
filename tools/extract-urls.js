@@ -33,7 +33,7 @@ function getOutputPath(inputPath) {
   const extension = extname(inputPath);
   const filename = basename(inputPath, extension);
 
-  return join(reportsFolder, `extract-${filename}.csv`);
+  return join(reportsFolder, `extracted-${filename}.csv`);
 }
 
 async function extractUrls(inputPath) {
