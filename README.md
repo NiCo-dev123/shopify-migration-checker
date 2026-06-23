@@ -13,21 +13,15 @@ It requests each old path on the Shopify `new_domain`, then checks that:
 
 This tool is especially useful for SEO migrations where preserving existing URLs is critical.
 
-## Experimental branch: `dev-password`
+### Experimental branch: `dev-password`
 
 The `dev-password` branch adds support for checking a Shopify storefront while
-its password page is enabled. It exists separately from `master` so the stable
-redirect checker remains untouched until the authentication flow is approved.
+its password page is enabled. It exists separately from `master`.
 
 Before checking redirects, `verify:redirect` loads Shopify's `/password` page,
 submits the configured storefront password with its authenticity token, saves
 the returned session cookies, and includes those cookies in every redirect
-request. `verify:original` is unchanged and does not use Shopify authentication.
-
-Successful authentication only bypasses the password page; it does not create
-or activate Shopify redirects. A `404` without a `/password` redirect means the
-storefront was unlocked successfully but Shopify has no active redirect for
-that path.
+request.
 
 Keep the password only in the ignored `inputs/urls.csv` file or the
 `SHOPIFY_STOREFRONT_PASSWORD` environment variable. Never commit it.
@@ -95,43 +89,8 @@ node --version
 Available verification commands:
 
 ```bash
-npm run verify:redirect # Check redirects on new_domain
 npm run verify:original # Check original paths on old_domain
-```
-
-## Tools
-
-Extra one-off helpers live in `tools/`.
-
-```bash
-node tools/extract-urls.js imports-dirty/sitemap.xml
-```
-
-This extracts `<loc>` URLs from a sitemap into `reports/extract-sitemap.csv`
-with one `old_url` column.
-
-### Check Shopify redirects
-
-Run the redirect checker:
-
-```bash
-npm run verify:redirect
-```
-
-Each run writes a timestamped report to
-`reports/verified-redirects-yymmdd-hhmm.csv`. The report includes the requested
-URL, expected and actual destinations, match result, redirect result, and HTTP
-status code.
-
-Example output:
-
-```text
-/pilote
-Expected: https://heatzyfr.myshopify.com/products/pilote
-Actual: https://heatzyfr.myshopify.com/products/pilote
-Status: 301
-Match: true
-----
+npm run verify:redirect # Check redirects on new_domain
 ```
 
 ### Verify original URLs
@@ -157,6 +116,41 @@ duplicate values. Every affected row receives the `double-entry` flag and a
 flag is printed with that entry's terminal output. Empty cells are ignored;
 surrounding whitespace is trimmed, while case, trailing slashes, queries, and
 fragments remain meaningful.
+
+### Check Shopify redirects
+
+Run the redirect checker:
+
+```bash
+npm run verify:redirect
+```
+
+Each run writes a timestamped report to
+`reports/verified-redirects-yymmdd-hhmm.csv`. The report includes the requested
+URL, expected and actual destinations, match result, redirect result, and HTTP
+status code.
+
+Example output:
+
+```text
+/pilote
+Expected: https://heatzyfr.myshopify.com/products/pilote
+Actual: https://heatzyfr.myshopify.com/products/pilote
+Status: 301
+Match: true
+----
+```
+
+## Tools
+
+Extra one-off helpers live in `tools/`.
+
+```bash
+node tools/extract-urls.js imports-dirty/sitemap.xml
+```
+
+This extracts `<loc>` URLs from a sitemap into `reports/extract-sitemap.csv`
+with one `old_url` column.
 
 ## Typical Workflow
 
