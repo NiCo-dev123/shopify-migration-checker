@@ -7,7 +7,7 @@
     "start": "node index.js",
     "verify:redirect": "node index.js",
     "verify:original": "node verify-original-urls.js",
-    "check": "node --check index.js && node --check verify-original-urls.js && node --check tools/extract-urls.js && node --check src/csv.js && node --check src/original-url-report.js && node --check src/original-url-verifier.js && node --check src/redirect-checker.js && node --check src/redirect-report.js && node --check src/report.js && node --check src/url.js",
+    "check": "node --check index.js && node --check verify-original-urls.js && node --check tools/extract-urls.js && node --check tools/check-diff.js && node --check src/csv.js && node --check src/original-url-report.js && node --check src/original-url-verifier.js && node --check src/redirect-checker.js && node --check src/redirect-report.js && node --check src/report.js && node --check src/url.js",
     "test": "node --test"
   },
   "engines": {

@@ -147,10 +147,11 @@ Extra one-off helpers live in `tools/`.
 
 ```bash
 node tools/extract-urls.js imports-dirty/sitemap.xml
+node tools/check-diff.js reports/extracted-sitemap.csv
 ```
 
-This extracts `<loc>` URLs from a sitemap into `reports/extract-sitemap.csv`
-with one `old_url` column.
+Use `extract-urls` to create `reports/extracted-sitemap.csv`, then `check-diff`
+to list sitemap URLs missing from `inputs/redirects.csv`.
 
 ## Typical Workflow
 
